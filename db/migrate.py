@@ -12,12 +12,15 @@ def run_migrations():
     conn = sqlite3.connect(DB_PATH)
 
     try:
-        # Baca file migrasi 001
+        # Eksekusi 001_initial_schema.sql
+        print("Menjalankan 001_initial_schema.sql...")
         with open("db/001_initial_schema.sql", "r", encoding="utf-8") as f:
-            sql_script = f.read()
-
-        print("Menjalankan 001_initial_schema.sql...") 
-        conn.executescript(sql_script)
+            conn.executescript(f.read())
+            
+        # Eksekusi 002_kyc_schema.sql (TAMBAHAN BARU)
+        print("Menjalankan 002_kyc_schema.sql...")
+        with open("db/002_kyc_schema.sql", "r", encoding="utf-8") as f:
+            conn.executescript(f.read())
 
         # Masukkan data bawaan untuk Tiers jika belum ada
         conn.execute("INSERT OR IGNORE INTO tiers (id, name, description) VALUES (1, 'Tier 0', 'Pembeli')")

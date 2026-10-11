@@ -1,0 +1,99 @@
+<!-- static/kyc.html -->
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi Penjual (KYC)</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f4f4f9;
+        padding: 2rem;
+      }
+      .card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 500px;
+        margin: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      input[type="file"] {
+        display: block;
+        margin-bottom: 15px;
+      }
+      button {
+        padding: 10px 15px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Verifikasi Menjadi Penjual (Tier 1)</h2>
+      <p>Silakan unggah dokumen untuk diverifikasi oleh Admin.</p>
+
+      <div class="form-group">
+        <label>Foto KTP:</label>
+        <input type="file" id="file-ktp" accept="image/*" />
+      </div>
+      <div class="form-group">
+        <label>Foto Swafoto (Selfie) dengan KTP:</label>
+        <input type="file" id="file-selfie" accept="image/*" />
+      </div>
+      <button onclick="submitKYC()">Unggah Dokumen</button>
+      <p id="message" style="color: green; font-weight: bold; mt-3"></p>
+    </div>
+
+    <script>
+      async function submitKYC() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Anda belum login! Silakan login di index.html dulu.");
+          window.location.href = "index.html";
+          return;
+        }
+
+        const ktpFile = document.getElementById("file-ktp").files[0];
+        const selfieFile = document.getElementById("file-selfie").files[0];
+
+        if (!ktpFile || !selfieFile) {
+          alert("KTP dan Swafoto wajib diunggah.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("ktp", ktpFile);
+        formData.append("selfie", selfieFile);
+
+        const res = await fetch("/api/users/verify-kyc", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById("message").innerText = data.message;
+        } else {
+          alert("Gagal: " + data.detail);
+        }
+      }
+    </script>
+  </body>
+</html>
