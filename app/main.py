@@ -1,7 +1,9 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from app.routers import auth
 
 app = FastAPI(title="Hanggar.id API")
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello dari API Hanggar.id!"}
+app.include_router(auth.router)
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")

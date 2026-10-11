@@ -1,0 +1,151 @@
+<!-- static/index.html -->
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hanggar.id - Login</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f4f4f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+      input {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px;
+        width: 100%;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background: #1d4ed8;
+      }
+      .hidden {
+        display: none;
+      }
+      .link {
+        color: #2563eb;
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 0.9em;
+        display: block;
+        margin-top: 10px;
+        text-align: center;
+      }
+      #message {
+        margin-top: 15px;
+        text-align: center;
+        font-weight: bold;
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2 style="text-align: center">Hanggar.id</h2>
+
+      <div id="login-form">
+        <h3>Masuk</h3>
+        <input type="email" id="login-email" placeholder="Email" required />
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Password"
+          required
+        />
+        <button onclick="login()">Masuk</button>
+        <a class="link" onclick="toggleForm()">Belum punya akun? Daftar</a>
+      </div>
+
+      <div id="register-form" class="hidden">
+        <h3>Daftar Tier 0 (Pembeli)</h3>
+        <input type="text" id="reg-name" placeholder="Nama Lengkap" required />
+        <input type="email" id="reg-email" placeholder="Email" required />
+        <input
+          type="password"
+          id="reg-password"
+          placeholder="Password"
+          required
+        />
+        <button onclick="register()">Daftar</button>
+        <a class="link" onclick="toggleForm()">Sudah punya akun? Masuk</a>
+      </div>
+
+      <div id="message"></div>
+    </div>
+
+    <script>
+      function toggleForm() {
+        document.getElementById("login-form").classList.toggle("hidden");
+        document.getElementById("register-form").classList.toggle("hidden");
+        document.getElementById("message").innerText = "";
+      }
+
+      async function register() {
+        const full_name = document.getElementById("reg-name").value;
+        const email = document.getElementById("reg-email").value;
+        const password = document.getElementById("reg-password").value;
+
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ full_name, email, password }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("Registrasi berhasil! Silakan login.");
+          toggleForm();
+        } else {
+          alert("Gagal: " + data.detail);
+        }
+      }
+
+      async function login() {
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
+
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          // Simpan token JWT di Local Storage
+          localStorage.setItem("token", data.access_token);
+          document.getElementById("message").innerText =
+            "Login Berhasil! Token JWT tersimpan.";
+        } else {
+          alert("Gagal: " + data.detail);
+        }
+      }
+    </script>
+  </body>
+</html>
